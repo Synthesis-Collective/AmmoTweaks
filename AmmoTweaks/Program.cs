@@ -96,8 +96,6 @@ namespace AmmoTweaks
                     if (dmg > maxDamage && ammogetter.Name?.String is string name) overpowered.Add(name);
                 }
             }
-            Console.WriteLine(vmin);
-            Console.WriteLine(vmax);
 
             foreach (var ammogetter in patchammo)
             {
@@ -112,7 +110,10 @@ namespace AmmoTweaks
                     Console.WriteLine($"Changing {ammo.Name} damage from {dmg} to {ammo.Damage}.");
                 }
 
-                if (speedChanges && ammo.Projectile.TryResolve<IProjectileGetter>(state.LinkCache, out var proj) && !blacklist.Contains(proj.FormKey))
+                if (speedChanges && ammo.Projectile.TryResolve<IProjectileGetter>(state.LinkCache, out var proj) && !blacklist.Contains(proj.FormKey)
+                    	&& (proj.Gravity != gravity
+                        || (proj.Speed != speedArrow && ammo.Flags.HasFlag(Ammunition.Flag.NonBolt))
+                        || (proj.Speed!=speedBolt && !ammo.Flags.HasFlag(Ammunition.Flag.NonBolt))))
                 {
                     var projectile = state.PatchMod.Projectiles.GetOrAddAsOverride(proj);
                     Console.WriteLine($"Adjusting {proj.Name} projectile.");
