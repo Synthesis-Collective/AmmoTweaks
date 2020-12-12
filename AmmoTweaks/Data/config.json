@@ -4,5 +4,9 @@
     "maxDamage": 35,
     "lootMult": 1,
     "renaming": false,
-    "separator": " - "
+    "separator": " - ",
+    "speedChanges" : true,
+    "speedArrow" : 5400,
+    "speedBolt" : 8100,
+    "gravity" : 0.2
 }

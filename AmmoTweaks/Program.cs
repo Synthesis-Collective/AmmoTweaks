@@ -6,9 +6,10 @@ using System;
 using System.Text.RegularExpressions;
 using Alphaleonis.Win32.Filesystem;
 using Newtonsoft.Json.Linq;
+using Mutagen.Bethesda.FormKeys.SkyrimSE;
 
 
-namespace BoltAndArrowPatcher
+namespace AmmoTweaks
 {
     public class Program
     {
@@ -18,8 +19,18 @@ namespace BoltAndArrowPatcher
         private static float lootMult;
         private static bool renaming;
         private static string separator = "";
+        private static bool speedChanges;
+        private static float speedArrow;
+        private static float speedBolt;
+        private static float gravity;
+
+        private static List<FormKey> blacklist = new List<FormKey>(){
+            Dragonborn.Projectile.DLC2ArrowRieklingSpearProjectile
+        };
 
         private static List<IAmmunitionGetter> patchammo = new List<IAmmunitionGetter>();
+
+        private static List<String> overpowered = new List<String>();
 
         public static int Main(string[] args)
         {
@@ -62,6 +73,14 @@ namespace BoltAndArrowPatcher
                 renaming = jRename.Value<bool?>() ?? false;
             if (config.TryGetValue("separator", out var jSeparator))
                 separator = jSeparator.Value<string?>() ?? " - ";
+            if (config.TryGetValue("speedChanges", out var jSpeedChanges))
+                speedChanges = jSpeedChanges.Value<bool?>() ?? true;
+            if (config.TryGetValue("speedArrow", out var jSspeedArrow))
+                speedArrow = jSspeedArrow.Value<float?>() ?? 5400;
+            if (config.TryGetValue("speedBolt", out var jSpeedBolt))
+                speedBolt = jSpeedBolt.Value<float?>() ?? 8100;
+            if (config.TryGetValue("gravity", out var jGravity))
+                gravity = jGravity.Value<float?>() ?? (float)0.2;
 
             float vmin = maxDamage;
             float vmax = minDamage;
@@ -73,20 +92,40 @@ namespace BoltAndArrowPatcher
                     var dmg = ammogetter.Damage;
                     if (ammogetter.Damage == 0) continue;
                     if (dmg < vmin) vmin = dmg;
-                    if (dmg > vmax && (dmg < maxDamage)) vmax = dmg;
+                    if (dmg > vmax && dmg <= maxDamage)vmax = dmg;
+                    if (dmg > maxDamage && ammogetter.Name?.String is string name) overpowered.Add(name);
                 }
             }
+            Console.WriteLine(vmin);
+            Console.WriteLine(vmax);
 
             foreach (var ammogetter in patchammo)
             {
-                var ammo = state.PatchMod.Ammunitions.GetOrAddAsOverride(ammogetter);           
-                 ammo.Weight = 0;
-                
+                var ammo = state.PatchMod.Ammunitions.GetOrAddAsOverride(ammogetter);
+                ammo.Weight = 0;
+
                 if (rescaling && ammo.Damage != 0)
                 {
                     var dmg = ammo.Damage;
-                    ammo.Damage = (float)Math.Round(((ammo.Damage - vmin) / (vmax - vmin)) * (maxDamage - minDamage) + minDamage);
-                    Console.WriteLine($"Changing {ammo.Name} damage from {dmg} to {ammo.Damage}");
+                    if (dmg > maxDamage) ammo.Damage = maxDamage;
+                    else ammo.Damage = (float)Math.Round(((ammo.Damage - vmin) / (vmax - vmin)) * (maxDamage - minDamage) + minDamage);
+                    Console.WriteLine($"Changing {ammo.Name} damage from {dmg} to {ammo.Damage}.");
+                }
+
+                if (speedChanges && ammo.Projectile.TryResolve<IProjectileGetter>(state.LinkCache, out var proj) && !blacklist.Contains(proj.FormKey))
+                {
+                    var projectile = state.PatchMod.Projectiles.GetOrAddAsOverride(proj);
+                    Console.WriteLine($"Adjusting {proj.Name} projectile.");
+                    projectile.Gravity = gravity;
+                    if (ammo.Flags.HasFlag(Ammunition.Flag.NonBolt))
+                    {
+                        projectile.Speed = speedArrow;
+                    }
+                    else
+                    {
+                        projectile.Speed = speedBolt;
+                    }
+
                 }
 
                 if (renaming) ammo.Name = RenameAmmo(ammo);
@@ -106,6 +145,12 @@ namespace BoltAndArrowPatcher
                         Console.WriteLine($"Setting iArrowInventoryChance from {data} to {(newdata < 100 ? newdata : 100)}");
                     }
                 }
+            }
+            if (overpowered.Count == 0) return;
+            Console.WriteLine("Warning: The following ammunitions were above the upper damage limit. They have been reduced to the maximum.");
+            foreach (var item in overpowered)
+            {
+                Console.WriteLine(item);
             }
         }
 
@@ -130,7 +175,7 @@ namespace BoltAndArrowPatcher
             }
             name = prefix + separator + Regex.Replace(name, pattern, String.Empty);
             name = name.Trim(' ');
-            Console.WriteLine($"Renaming {oldname} to {name}");
+            Console.WriteLine($"Renaming {oldname} to {name}.");
             return name;
         }
     }
