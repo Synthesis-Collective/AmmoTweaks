@@ -1,0 +1,8 @@
+{
+    "rescaling" : true,
+    "minDamage" : 8,
+    "maxDamage": 35,
+    "lootMult": 1,
+    "renaming": false,
+    "separator": " - "
+}
