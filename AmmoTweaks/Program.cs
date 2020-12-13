@@ -93,7 +93,7 @@ namespace AmmoTweaks
                     var dmg = ammogetter.Damage;
                     if (ammogetter.Damage == 0) continue;
                     if (dmg < vmin) vmin = dmg;
-                    if (dmg > vmax && dmg <= maxDamage)vmax = dmg;
+                    if (dmg > vmax && dmg <= maxDamage) vmax = dmg;
                     if (dmg > maxDamage && ammogetter.Name?.String is string name) overpowered.Add(name);
                 }
             }
@@ -112,9 +112,9 @@ namespace AmmoTweaks
                 }
 
                 if (speedChanges && ammo.Projectile.TryResolve<IProjectileGetter>(state.LinkCache, out var proj) && !blacklist.Contains(proj.FormKey)
-                    	&& (proj.Gravity != gravity
+                        && (proj.Gravity != gravity
                         || (proj.Speed != speedArrow && ammo.Flags.HasFlag(Ammunition.Flag.NonBolt))
-                        || (proj.Speed!=speedBolt && !ammo.Flags.HasFlag(Ammunition.Flag.NonBolt))))
+                        || (proj.Speed != speedBolt && !ammo.Flags.HasFlag(Ammunition.Flag.NonBolt))))
                 {
                     var projectile = state.PatchMod.Projectiles.GetOrAddAsOverride(proj);
                     Console.WriteLine($"Adjusting {proj.Name} projectile.");
@@ -135,18 +135,16 @@ namespace AmmoTweaks
 
             if (lootMult != 1)
             {
-                foreach (var gmst in state.LoadOrder.PriorityOrder.WinningOverrides<IGameSettingGetter>())
+                if (state.LinkCache.TryResolve<IGameSettingGetter>(Skyrim.GameSetting.iArrowInventoryChance, out var gmst))
                 {
-                    if (gmst.EditorID?.Contains("iArrowInventoryChance") == true)
-                    {
-                        var modifiedGmst = state.PatchMod.GameSettings.GetOrAddAsOverride(gmst);
+                    var modifiedGmst = state.PatchMod.GameSettings.GetOrAddAsOverride(gmst);
 
-                        int data = ((GameSettingInt)modifiedGmst).Data.GetValueOrDefault();
-                        int newdata = (int)Math.Round(data * lootMult);
-                        ((GameSettingInt)modifiedGmst).Data = newdata < 100 ? newdata : 100;
-                        Console.WriteLine($"Setting iArrowInventoryChance from {data} to {(newdata < 100 ? newdata : 100)}");
-                    }
+                    int data = ((GameSettingInt)modifiedGmst).Data.GetValueOrDefault();
+                    int newdata = (int)Math.Round(data * lootMult);
+                    ((GameSettingInt)modifiedGmst).Data = newdata < 100 ? newdata : 100;
+                    Console.WriteLine($"Setting iArrowInventoryChance from {data} to {(newdata < 100 ? newdata : 100)}");
                 }
+
             }
             if (overpowered.Count == 0) return;
             Console.WriteLine("Warning: The following ammunitions were above the upper damage limit. They have been reduced to the maximum.");
