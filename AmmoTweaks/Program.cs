@@ -33,6 +33,7 @@ namespace AmmoTweaks
 
         private static List<String> overpowered = new List<String>();
 
+        private static List<IPerkGetter> perks = new List<IPerkGetter>();
         public static int Main(string[] args)
         {
             return SynthesisPipeline.Instance.Patch<ISkyrimMod, ISkyrimModGetter>(
@@ -140,10 +141,27 @@ namespace AmmoTweaks
                     var modifiedGmst = state.PatchMod.GameSettings.GetOrAddAsOverride(gmst);
 
                     int data = ((GameSettingInt)modifiedGmst).Data.GetValueOrDefault();
-                    int newdata = (int)Math.Round(data * lootMult);
-                    ((GameSettingInt)modifiedGmst).Data = newdata < 100 ? newdata : 100;
-                    Console.WriteLine($"Setting iArrowInventoryChance from {data} to {(newdata < 100 ? newdata : 100)}");
+                    int newData = (int)Math.Round(data * lootMult);
+                    ((GameSettingInt)modifiedGmst).Data = newData < 100 ? newData : 100;
+                    Console.WriteLine($"Setting iArrowInventoryChance from {data} to {(newData < 100 ? newData : 100)}");
                 }
+                if (state.LinkCache.TryResolve<IPerkGetter>(Skyrim.Perk.HuntersDiscipline, out var perk))
+                {
+                    var modifiedPerk = state.PatchMod.Perks.GetOrAddAsOverride(perk);
+
+                    foreach (var effect in modifiedPerk.Effects)
+                    {
+                        if (!(effect is PerkEntryPointModifyValue modValue)) continue;
+                        if (modValue.EntryPoint == APerkEntryPointEffect.EntryType.ModRecoverArrowChance)
+                        {
+                            var value = modValue.Value;
+                            var newValue = (float)Math.Round(value * lootMult);
+                            modValue.Value = newValue < 100 ? newValue : 100;
+                            Console.WriteLine($"Setting {modifiedPerk.Name} chance from {value} to {(newValue < 100 ? newValue : 100)}");
+                        }
+                    }
+                }
+
 
             }
             if (overpowered.Count == 0) return;
