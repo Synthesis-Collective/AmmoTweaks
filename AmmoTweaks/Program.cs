@@ -25,7 +25,8 @@ namespace AmmoTweaks
         private static float gravity;
 
         private static List<FormKey> blacklist = new List<FormKey>(){
-            Dragonborn.Projectile.DLC2ArrowRieklingSpearProjectile
+            Dragonborn.Projectile.DLC2ArrowRieklingSpearProjectile,
+            Skyrim.Projectile.MQ101ArrowSteelProjectile
         };
 
         private static List<IAmmunitionGetter> patchammo = new List<IAmmunitionGetter>();
