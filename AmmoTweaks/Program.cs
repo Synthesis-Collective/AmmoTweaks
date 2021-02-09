@@ -4,10 +4,10 @@ using Mutagen.Bethesda.Skyrim;
 using System.Collections.Generic;
 using System;
 using System.Text.RegularExpressions;
-using Alphaleonis.Win32.Filesystem;
 using Newtonsoft.Json.Linq;
 using Mutagen.Bethesda.FormKeys.SkyrimSE;
-
+using System.Threading.Tasks;
+using System.IO;
 
 namespace AmmoTweaks
 {
@@ -34,12 +34,11 @@ namespace AmmoTweaks
         private static List<String> overpowered = new List<String>();
 
         private static List<IPerkGetter> perks = new List<IPerkGetter>();
-        public static int Main(string[] args)
+        public static Task<int> Main(string[] args)
         {
-            return SynthesisPipeline.Instance.Patch<ISkyrimMod, ISkyrimModGetter>(
-                args: args,
-                patcher: RunPatch,
-                userPreferences: new UserPreferences()
+            return SynthesisPipeline.Instance
+                .AddPatch<ISkyrimMod, ISkyrimModGetter>(RunPatch)
+                .Run(args, new RunPreferences()
                 {
                     ActionsForEmptyArgs = new RunDefaultPatcher()
                     {
@@ -50,7 +49,7 @@ namespace AmmoTweaks
                 });
         }
 
-        public static void RunPatch(SynthesisState<ISkyrimMod, ISkyrimModGetter> state)
+        public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             string configFilePath = Path.Combine(state.ExtraSettingsDataPath, "config.json");
 
