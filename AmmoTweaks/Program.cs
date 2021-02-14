@@ -13,7 +13,7 @@ namespace AmmoTweaks
 {
     public class Program
     {
-        private static float damageMult;
+        private static bool rescaling;
         private static float minDamage;
         private static float maxDamage;
         private static float lootMult;
@@ -61,8 +61,9 @@ namespace AmmoTweaks
 
             JObject config = JObject.Parse(File.ReadAllText(configFilePath));
 
-	    if (config.TryGetValue("damageMult", out var jDamageMult))
-                damageMult = jDamageMult.Value<float?>() ?? 1;
+
+            if (config.TryGetValue("rescaling", out var jRescale))
+                rescaling = jRescale.Value<bool?>() ?? false;
             if (config.TryGetValue("minDamage", out var jMin))
                 minDamage = jMin.Value<float?>() ?? 4;
             if (config.TryGetValue("maxDamage", out var jMax))
@@ -99,30 +100,17 @@ namespace AmmoTweaks
 
             foreach (var ammogetter in patchammo)
             {
-                float ammo = state.PatchMod.Ammunitions.GetOrAddAsOverride(ammogetter);
+                var ammo = state.PatchMod.Ammunitions.GetOrAddAsOverride(ammogetter);
                 ammo.Weight = 0;
 
-		
-		if (ammo.Damage != 0)
+                if (rescaling && ammo.Damage != 0)
                 {
                     var dmg = ammo.Damage;
-		    if (damageMult != -1) ammo.Damage =  ammo.Damage * damageMult;
-                    if (maxDamage != -1 && dmg > maxDamage) ammo.Damage = maxDamage;
-	            if (minDamage != -1 && dmg < maxDamage) ammo.Damage = minDamage;                    
+                    if (dmg > maxDamage) ammo.Damage = maxDamage;
+                    else ammo.Damage = (float)Math.Round(((ammo.Damage - vmin) / (vmax - vmin)) * (maxDamage - minDamage) + minDamage);
                     Console.WriteLine($"Changing {ammo.Name} damage from {dmg} to {ammo.Damage}.");
                 }
-           				
-		if (damageMult != 1) 
-		{
-			ammo.Damage = (float)(ammo.Damage * damageMult);
-		}
-                ammo.Damage = (float)Math.Min(ammo.Damage, maxDamage);
-                ammo.Damage = (float)Math.Max(ammo.Damage, minDamage);
-                if (dmg != ammo.Damage) 
-		{
-			Console.WriteLine($"changed {ammo.Name} damage from {dmg} to {ammo.Damage}");
-                }
-				
+
                 if (speedChanges && ammo.Projectile.TryResolve<IProjectileGetter>(state.LinkCache, out var proj) && !blacklist.Contains(proj.FormKey)
                         && (proj.Gravity != gravity
                         || (proj.Speed != speedArrow && ammo.Flags.HasFlag(Ammunition.Flag.NonBolt))
