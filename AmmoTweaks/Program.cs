@@ -61,6 +61,8 @@ namespace AmmoTweaks
 
             JObject config = JObject.Parse(File.ReadAllText(configFilePath));
 
+			if (config.TryGetValue("damageMult", out var jDamageMult))
+                damageMult = jDamageMult.Value<float?>() ?? 1;
             if (config.TryGetValue("minDamage", out var jMin))
                 minDamage = jMin.Value<float?>() ?? 4;
             if (config.TryGetValue("maxDamage", out var jMax))
@@ -97,18 +99,21 @@ namespace AmmoTweaks
 
             foreach (var ammogetter in patchammo)
             {
-                var ammo = state.PatchMod.Ammunitions.GetOrAddAsOverride(ammogetter);
+                float ammo = state.PatchMod.Ammunitions.GetOrAddAsOverride(ammogetter);
                 ammo.Weight = 0;
 
-                var dmg = ammo.Damage;
-                dmg = (float)Math.Round(dmg * damageMult);
-                dmg = (float)Math.Min(dmg, maxDamage);
-                dmg = (float)Math.Max(dmg, minDamage);
+				
+                float dmg = ammo.Damage;
+				
+				Console.WriteLine($"{ammo.Name} original damage =  {ammo.Damage}");
+				if (damageMult != 1) 
+				{
+					ammo.Damage = (float)(ammo.Damage * damageMult);
+				}
+                ammo.Damage = (float)Math.Min(ammo.Damage, maxDamage);
+                ammo.Damage = (float)Math.Max(ammo.Damage, minDamage);
                 if (dmg != ammo.Damage)
-                {
-                    Console.WriteLine($"Changing {ammo.Name} damage from {dmg} to {ammo.Damage}.");
-                    ammo.Damage = dmg;
-                }
+                Console.WriteLine($"{ammo.Name} new damage =  {ammo.Damage}");
                 
                 if (speedChanges && ammo.Projectile.TryResolve<IProjectileGetter>(state.LinkCache, out var proj) && !blacklist.Contains(proj.FormKey)
                         && (proj.Gravity != gravity
