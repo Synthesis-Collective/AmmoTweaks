@@ -62,7 +62,7 @@ namespace AmmoTweaks
             JObject config = JObject.Parse(File.ReadAllText(configFilePath));
 
 	    if (config.TryGetValue("damageMult", out var jDamageMult))
-                damageMult = jDamageMult.Value<float?>() ?? 1.0;
+                damageMult = jDamageMult.Value<float?>() ?? 1;
             if (config.TryGetValue("minDamage", out var jMin))
                 minDamage = jMin.Value<float?>() ?? 4;
             if (config.TryGetValue("maxDamage", out var jMax))
@@ -102,8 +102,16 @@ namespace AmmoTweaks
                 float ammo = state.PatchMod.Ammunitions.GetOrAddAsOverride(ammogetter);
                 ammo.Weight = 0;
 
-				
-                float dmg = ammo.Damage;					
+		
+		if (ammo.Damage != 0)
+                {
+                    var dmg = ammo.Damage;
+		    if (damageMult != -1) ammo.Damage =  ammo.Damage * damageMult;
+                    if (maxDamage != -1 && dmg > maxDamage) ammo.Damage = maxDamage;
+	            if (minDamage != -1 && dmg < maxDamage) ammo.Damage = minDamage;                    
+                    Console.WriteLine($"Changing {ammo.Name} damage from {dmg} to {ammo.Damage}.");
+                }
+           				
 		if (damageMult != 1) 
 		{
 			ammo.Damage = (float)(ammo.Damage * damageMult);
