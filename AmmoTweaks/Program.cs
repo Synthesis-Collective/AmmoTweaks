@@ -61,7 +61,6 @@ namespace AmmoTweaks
 
             JObject config = JObject.Parse(File.ReadAllText(configFilePath));
 
-
             if (config.TryGetValue("minDamage", out var jRescale))
                 damageMult = jLoot.Value<float?>() ?? 1;
             if (config.TryGetValue("minDamage", out var jMin))
@@ -103,14 +102,15 @@ namespace AmmoTweaks
                 var ammo = state.PatchMod.Ammunitions.GetOrAddAsOverride(ammogetter);
                 ammo.Weight = 0;
 
-                if (rescaling && ammo.Damage != 0)
+                var dmg = ammo.Damage;
+                ammo.Damage = (float)Math.Round(ammo.Damage * damageMult)
+                ammo.Damage = (float)Math.Min(ammo.Damage, maxDamage)
+                ammo.Damage = (float)Math.Max(ammo.Damage, minDamage)    
+                if (dmg != ammo.Name)
                 {
-                    var dmg = ammo.Damage;
-                    if (dmg > maxDamage) ammo.Damage = maxDamage;
-                    else ammo.Damage = (float)Math.Round(((ammo.Damage - vmin) / (vmax - vmin)) * (maxDamage - minDamage) + minDamage);
                     Console.WriteLine($"Changing {ammo.Name} damage from {dmg} to {ammo.Damage}.");
                 }
-
+                
                 if (speedChanges && ammo.Projectile.TryResolve<IProjectileGetter>(state.LinkCache, out var proj) && !blacklist.Contains(proj.FormKey)
                         && (proj.Gravity != gravity
                         || (proj.Speed != speedArrow && ammo.Flags.HasFlag(Ammunition.Flag.NonBolt))
