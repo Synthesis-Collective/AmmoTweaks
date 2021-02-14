@@ -61,8 +61,8 @@ namespace AmmoTweaks
 
             JObject config = JObject.Parse(File.ReadAllText(configFilePath));
 
-			if (config.TryGetValue("damageMult", out var jDamageMult))
-                damageMult = jDamageMult.Value<float?>() ?? 1;
+	    if (config.TryGetValue("damageMult", out var jDamageMult))
+                damageMult = jDamageMult.Value<float?>() ?? 1.0;
             if (config.TryGetValue("minDamage", out var jMin))
                 minDamage = jMin.Value<float?>() ?? 4;
             if (config.TryGetValue("maxDamage", out var jMax))
@@ -103,18 +103,16 @@ namespace AmmoTweaks
                 ammo.Weight = 0;
 
 				
-                float dmg = ammo.Damage;
-				
-				Console.WriteLine($"{ammo.Name} original damage =  {ammo.Damage}");
-				if (damageMult != 1) 
-				{
-					ammo.Damage = (float)(ammo.Damage * damageMult);
-				}
+                float dmg = ammo.Damage;					
+		if (damageMult != 1) 
+		{
+			ammo.Damage = (float)(ammo.Damage * damageMult);
+		}
                 ammo.Damage = (float)Math.Min(ammo.Damage, maxDamage);
                 ammo.Damage = (float)Math.Max(ammo.Damage, minDamage);
                 if (dmg != ammo.Damage) 
-				{
-					Console.WriteLine($"{ammo.Name} new damage =  {ammo.Damage}");
+		{
+			Console.WriteLine($"changed {ammo.Name} damage from {dmg} to {ammo.Damage}");
                 }
 				
                 if (speedChanges && ammo.Projectile.TryResolve<IProjectileGetter>(state.LinkCache, out var proj) && !blacklist.Contains(proj.FormKey)
