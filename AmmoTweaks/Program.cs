@@ -13,7 +13,7 @@ namespace AmmoTweaks
 {
     public class Program
     {
-        private static bool damageMult;
+        private static float damageMult;
         private static float minDamage;
         private static float maxDamage;
         private static float lootMult;
@@ -61,8 +61,6 @@ namespace AmmoTweaks
 
             JObject config = JObject.Parse(File.ReadAllText(configFilePath));
 
-            if (config.TryGetValue("minDamage", out var jRescale))
-                damageMult = jLoot.Value<float?>() ?? 1;
             if (config.TryGetValue("minDamage", out var jMin))
                 minDamage = jMin.Value<float?>() ?? 4;
             if (config.TryGetValue("maxDamage", out var jMax))
@@ -103,12 +101,13 @@ namespace AmmoTweaks
                 ammo.Weight = 0;
 
                 var dmg = ammo.Damage;
-                ammo.Damage = (float)Math.Round(ammo.Damage * damageMult)
-                ammo.Damage = (float)Math.Min(ammo.Damage, maxDamage)
-                ammo.Damage = (float)Math.Max(ammo.Damage, minDamage)    
-                if (dmg != ammo.Name)
+                dmg = (float)Math.Round(dmg * damageMult);
+                dmg = (float)Math.Min(dmg, maxDamage);
+                dmg = (float)Math.Max(dmg, minDamage)    ;
+                if (dmg != ammo.Damage)
                 {
                     Console.WriteLine($"Changing {ammo.Name} damage from {dmg} to {ammo.Damage}.");
+                    ammo.Damage = dmg;
                 }
                 
                 if (speedChanges && ammo.Projectile.TryResolve<IProjectileGetter>(state.LinkCache, out var proj) && !blacklist.Contains(proj.FormKey)
