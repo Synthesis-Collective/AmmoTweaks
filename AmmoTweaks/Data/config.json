@@ -1,12 +1,12 @@
 {
-    "damageMult" : 1,
+    "damageMult" : 0.75,
     "minDamage" : -1,
     "maxDamage": -1,
     "lootMult": 1,
     "renaming": false,
     "separator": " - ",
     "speedChanges" : true,
-    "speedArrow" : 5400,
-    "speedBolt" : 8100,
-    "gravity" : 0.2
+    "speedArrow" : 5120,
+    "speedBolt" : 7680,
+    "gravity" : 0.2175
 }
