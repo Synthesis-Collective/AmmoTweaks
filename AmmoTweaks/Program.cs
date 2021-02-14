@@ -103,7 +103,7 @@ namespace AmmoTweaks
                 var dmg = ammo.Damage;
                 dmg = (float)Math.Round(dmg * damageMult);
                 dmg = (float)Math.Min(dmg, maxDamage);
-                dmg = (float)Math.Max(dmg, minDamage)    ;
+                dmg = (float)Math.Max(dmg, minDamage);
                 if (dmg != ammo.Damage)
                 {
                     Console.WriteLine($"Changing {ammo.Name} damage from {dmg} to {ammo.Damage}.");
