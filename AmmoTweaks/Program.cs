@@ -112,9 +112,11 @@ namespace AmmoTweaks
 				}
                 ammo.Damage = (float)Math.Min(ammo.Damage, maxDamage);
                 ammo.Damage = (float)Math.Max(ammo.Damage, minDamage);
-                if (dmg != ammo.Damage)
-                Console.WriteLine($"{ammo.Name} new damage =  {ammo.Damage}");
-                
+                if (dmg != ammo.Damage) 
+				{
+					Console.WriteLine($"{ammo.Name} new damage =  {ammo.Damage}");
+                }
+				
                 if (speedChanges && ammo.Projectile.TryResolve<IProjectileGetter>(state.LinkCache, out var proj) && !blacklist.Contains(proj.FormKey)
                         && (proj.Gravity != gravity
                         || (proj.Speed != speedArrow && ammo.Flags.HasFlag(Ammunition.Flag.NonBolt))
