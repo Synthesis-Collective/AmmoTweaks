@@ -13,7 +13,7 @@ namespace AmmoTweaks
 {
     public class Program
     {
-        private static bool rescaling;
+        private static bool damageMult;
         private static float minDamage;
         private static float maxDamage;
         private static float lootMult;
@@ -63,7 +63,7 @@ namespace AmmoTweaks
 
 
             if (config.TryGetValue("minDamage", out var jRescale))
-                rescaling = jRescale.Value<bool?>() ?? false;
+                damageMult = jLoot.Value<float?>() ?? 1;
             if (config.TryGetValue("minDamage", out var jMin))
                 minDamage = jMin.Value<float?>() ?? 4;
             if (config.TryGetValue("maxDamage", out var jMax))
