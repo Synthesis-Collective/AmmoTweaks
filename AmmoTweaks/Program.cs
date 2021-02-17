@@ -103,8 +103,15 @@ namespace AmmoTweaks
                 if (damageRescaling && ammo.Damage != 0)
                 {
                     var newDmg = ammo.Damage * damageMult;                   
-                    if (maxDamage != -1.0 && newDmg > maxDamage) newDmg = maxDamage;
-                    if (minDamage != -1.0 && newDmg < minDamage) newDmg = minDamage;                                                                   
+                    if (maxDamage != -1.0 && newDmg > maxDamage)
+                    {
+                        newDmg = maxDamage;  
+                        if (ammogetter.Name?.String is string name) overpowered.Add(name);
+                    }                                              
+                    if (minDamage != -1.0 && newDmg < minDamage) 
+                    {
+                        newDmg = minDamage;    
+                    }                                                               
                     Console.WriteLine($"Changing {ammo.Name} damage from {ammo.Damage} to {newDmg}.");
                     ammo.Damage =  newDmg;
                 }
@@ -159,6 +166,12 @@ namespace AmmoTweaks
                     }
                 }
 
+            }
+            if (overpowered.Count == 0) return;
+            Console.WriteLine("Warning: The following ammunitions were above the upper damage limit. They have been reduced to the maximum.");
+            foreach (var item in overpowered)
+            {
+                Console.WriteLine(item);
             }
         }
 
