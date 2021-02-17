@@ -103,8 +103,8 @@ namespace AmmoTweaks
                 if (damageRescaling && ammo.Damage != 0)
                 {
                     var newDmg =  (float)Math.Round(ammo.Damage * damageMult);                   
-                    if (newDmg > maxDamage) newDmg = maxDamage;
-                    if (newDmg < minDamage) newDmg = minDamage;                                                                   
+                    if (maxDamage != -1 && newDmg > maxDamage) newDmg = maxDamage;
+                    if (minDamage != -1 && newDmg < minDamage) newDmg = minDamage;                                                                   
                     Console.WriteLine($"Changing {ammo.Name} damage from {ammo.Damage} to {newDmg}.");
                     ammo.Damage =  newDmg;
                 }
