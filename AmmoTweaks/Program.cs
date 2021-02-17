@@ -103,12 +103,12 @@ namespace AmmoTweaks
                 if (damageRescaling && ammo.Damage != 0)
                 {
                     var newDmg = ammo.Damage * damageMult;                   
-                    if (maxDamage != -1.0 && newDmg > maxDamage)
+                    if ((float)maxDamage != -1.0 && newDmg > maxDamage)
                     {
                         newDmg = maxDamage;  
                         if (ammogetter.Name?.String is string name) overpowered.Add(name);
                     }                                              
-                    if (minDamage != -1.0 && newDmg < minDamage) 
+                    if ((float)minDamage != -1.0 && newDmg < minDamage) 
                     {
                         newDmg = minDamage;    
                     }                                                               
