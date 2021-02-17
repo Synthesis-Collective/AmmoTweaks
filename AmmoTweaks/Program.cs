@@ -64,7 +64,7 @@ namespace AmmoTweaks
 
 
             if (config.TryGetValue("damageRescaling", out var jRescale))
-                rescaling = jRescale.Value<bool?>() ?? false;
+                damageRescaling = jRescale.Value<bool?>() ?? false;
             if (config.TryGetValue("damageMult", out var jDamageMult))
                 damageMult = jDamageMult.Value<float?>() ?? 1;
             if (config.TryGetValue("minDamage", out var jMin))
