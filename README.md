@@ -5,7 +5,8 @@ Can optionally rename ammo for better sorting and adjust recoverable ammo found 
 
 ## Settings
 Configuration file (Data/config.json)
-- damageMult: Modifies damage.  Values below 1 will reduce damage while values above 1 will increase it.  Set to 1 to disable.
+- damageRescaling:  Enables projectile damage tweaks. Set to false to disable.
+- damageMult: Modifies damage.  Values below 1 will reduce damage while values above 1 will increase it.  
 - minDamage: Allowed minimum damage. Set -1 to disable.
 - maxDamage: Allowed maximum damage. Set -1 to disable.
 - lootMult: Modifies amount of ammo found on bodies. Values below 1 will reduce found ammo while values above 1 will increase it. Set to 1 to disable.
