@@ -13,7 +13,8 @@ namespace AmmoTweaks
 {
     public class Program
     {
-        private static bool rescaling;
+        private static bool damageRescaling;
+        private static float damageMult;
         private static float minDamage;
         private static float maxDamage;
         private static float lootMult;
@@ -62,8 +63,10 @@ namespace AmmoTweaks
             JObject config = JObject.Parse(File.ReadAllText(configFilePath));
 
 
-            if (config.TryGetValue("minDamage", out var jRescale))
-                rescaling = jRescale.Value<bool?>() ?? false;
+            if (config.TryGetValue("damageRescaling", out var jRescale))
+                damageRescaling = jRescale.Value<bool?>() ?? false;
+            if (config.TryGetValue("damageMult", out var jDamageMult))
+                damageMult = jDamageMult.Value<float?>() ?? 1;
             if (config.TryGetValue("minDamage", out var jMin))
                 minDamage = jMin.Value<float?>() ?? 4;
             if (config.TryGetValue("maxDamage", out var jMax))
@@ -82,19 +85,13 @@ namespace AmmoTweaks
                 speedBolt = jSpeedBolt.Value<float?>() ?? 8100;
             if (config.TryGetValue("gravity", out var jGravity))
                 gravity = jGravity.Value<float?>() ?? (float)0.2;
-
-            float vmin = maxDamage;
-            float vmax = minDamage;
+        
+            
             foreach (var ammogetter in state.LoadOrder.PriorityOrder.WinningOverrides<IAmmunitionGetter>())
             {
                 if (!ammogetter.Flags.HasFlag(Ammunition.Flag.NonPlayable))
                 {
-                    patchammo.Add(ammogetter);
-                    var dmg = ammogetter.Damage;
-                    if (ammogetter.Damage == 0) continue;
-                    if (dmg < vmin) vmin = dmg;
-                    if (dmg > vmax && dmg <= maxDamage) vmax = dmg;
-                    if (dmg > maxDamage && ammogetter.Name?.String is string name) overpowered.Add(name);
+                    patchammo.Add(ammogetter);                   
                 }
             }
 
@@ -103,12 +100,20 @@ namespace AmmoTweaks
                 var ammo = state.PatchMod.Ammunitions.GetOrAddAsOverride(ammogetter);
                 ammo.Weight = 0;
 
-                if (rescaling && ammo.Damage != 0)
+                if (damageRescaling && ammo.Damage != 0)
                 {
-                    var dmg = ammo.Damage;
-                    if (dmg > maxDamage) ammo.Damage = maxDamage;
-                    else ammo.Damage = (float)Math.Round(((ammo.Damage - vmin) / (vmax - vmin)) * (maxDamage - minDamage) + minDamage);
-                    Console.WriteLine($"Changing {ammo.Name} damage from {dmg} to {ammo.Damage}.");
+                    var newDmg = ammo.Damage * damageMult;                   
+                    if (maxDamage >= 0  && newDmg > maxDamage)
+                    {
+                        newDmg = maxDamage;  
+                        if (ammogetter.Name?.String is string name) overpowered.Add(name);
+                    }                                              
+                    if (minDamage >= 0  && newDmg < minDamage) 
+                    {
+                        newDmg = minDamage;    
+                    }
+                    if (ammo.Damage != newDmg) Console.WriteLine($"Changing {ammo.Name} damage from {ammo.Damage} to {newDmg}.");
+                    ammo.Damage =  newDmg;
                 }
 
                 if (speedChanges && ammo.Projectile.TryResolve<IProjectileGetter>(state.LinkCache, out var proj) && !blacklist.Contains(proj.FormKey)
@@ -160,7 +165,6 @@ namespace AmmoTweaks
                         }
                     }
                 }
-
 
             }
             if (overpowered.Count == 0) return;
