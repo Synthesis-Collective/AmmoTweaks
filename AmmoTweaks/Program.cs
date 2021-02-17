@@ -13,7 +13,7 @@ namespace AmmoTweaks
 {
     public class Program
     {
-        private static bool rescaling;
+        private static bool damageRescaling;
         private static float minDamage;
         private static float maxDamage;
         private static float lootMult;
@@ -62,7 +62,7 @@ namespace AmmoTweaks
             JObject config = JObject.Parse(File.ReadAllText(configFilePath));
 
 
-            if (config.TryGetValue("rescaling", out var jRescale))
+            if (config.TryGetValue("damageRescaling", out var jRescale))
                 rescaling = jRescale.Value<bool?>() ?? false;
             if (config.TryGetValue("minDamage", out var jMin))
                 minDamage = jMin.Value<float?>() ?? 4;
@@ -103,7 +103,7 @@ namespace AmmoTweaks
                 var ammo = state.PatchMod.Ammunitions.GetOrAddAsOverride(ammogetter);
                 ammo.Weight = 0;
 
-                if (rescaling && ammo.Damage != 0)
+                if (damageRescaling && ammo.Damage != 0)
                 {
                     var dmg = ammo.Damage;
                     if (dmg > maxDamage) ammo.Damage = maxDamage;
