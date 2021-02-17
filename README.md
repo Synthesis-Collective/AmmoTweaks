@@ -1,6 +1,6 @@
-# AmmoTweaks - with damage mult (WIP)
+# AmmoTweaks
 Configurable patcher intended as a WACCF-friendly alternative to ABT.
-Will rescale ammo damage between a configurable minimum and maximum while removing ammo weight as well as adjusting projectile speed and gravity.
+Will rescale ammo damage removing ammo weight as well as adjusting projectile speed and gravity.
 Can optionally rename ammo for better sorting and adjust recoverable ammo found on bodies.
 
 ## Settings
