@@ -1,8 +1,8 @@
 {
     "damageRescaling" : true,
     "damageMult" : 0.25,
-    "minDamage" : -1,
-    "maxDamage": -1,
+    "minDamage" : 0,
+    "maxDamage": 35,
     "lootMult": 1,
     "renaming": false,
     "separator": " - ",
