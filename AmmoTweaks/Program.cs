@@ -65,6 +65,8 @@ namespace AmmoTweaks
 
             if (config.TryGetValue("damageRescaling", out var jRescale))
                 damageRescaling = jRescale.Value<bool?>() ?? false;
+            if (config.TryGetValue("TweakToNonPlayable", out var jNonPlayable))
+                tweakNonPlayable = jNonPlayable.Value<bool?>() ?? false;
             if (config.TryGetValue("damageMult", out var jDamageMult))
                 damageMult = jDamageMult.Value<float?>() ?? 1;
             if (config.TryGetValue("minDamage", out var jMin))
@@ -89,7 +91,7 @@ namespace AmmoTweaks
             
             foreach (var ammogetter in state.LoadOrder.PriorityOrder.WinningOverrides<IAmmunitionGetter>())
             {
-                if (!ammogetter.Flags.HasFlag(Ammunition.Flag.NonPlayable))
+                if (tweakNonPlayable or !ammogetter.Flags.HasFlag(Ammunition.Flag.NonPlayable))
                 {
                     patchammo.Add(ammogetter);                   
                 }
