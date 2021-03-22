@@ -24,7 +24,7 @@ namespace AmmoTweaks
         private static float speedBolt;
         private static float gravity;
 
-        private static List<FormKey> blacklist = new List<FormKey>(){
+        private static HashSet<IFormLinkGetter<IProjectileGetter>> blacklist = new(){
             Dragonborn.Projectile.DLC2ArrowRieklingSpearProjectile,
             Skyrim.Projectile.MQ101ArrowSteelProjectile
         };
@@ -38,15 +38,8 @@ namespace AmmoTweaks
         {
             return SynthesisPipeline.Instance
                 .AddPatch<ISkyrimMod, ISkyrimModGetter>(RunPatch)
-                .Run(args, new RunPreferences()
-                {
-                    ActionsForEmptyArgs = new RunDefaultPatcher()
-                    {
-                        IdentifyingModKey = "AmmoTweaks.esp",
-                        TargetRelease = GameRelease.SkyrimSE,
-                        BlockAutomaticExit = true,
-                    }
-                });
+                .SetTypicalOpen(GameRelease.SkyrimSE, "AmmoTweaks.esp")
+                .Run(args);
         }
 
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
@@ -85,7 +78,7 @@ namespace AmmoTweaks
 
             float vmin = maxDamage;
             float vmax = minDamage;
-            foreach (var ammogetter in state.LoadOrder.PriorityOrder.WinningOverrides<IAmmunitionGetter>())
+            foreach (var ammogetter in state.LoadOrder.PriorityOrder.Ammunition().WinningOverrides())
             {
                 if (!ammogetter.Flags.HasFlag(Ammunition.Flag.NonPlayable))
                 {
@@ -111,7 +104,7 @@ namespace AmmoTweaks
                     Console.WriteLine($"Changing {ammo.Name} damage from {dmg} to {ammo.Damage}.");
                 }
 
-                if (speedChanges && ammo.Projectile.TryResolve<IProjectileGetter>(state.LinkCache, out var proj) && !blacklist.Contains(proj.FormKey)
+                if (speedChanges && !blacklist.Contains(ammo.Projectile) && ammo.Projectile.TryResolve(state.LinkCache, out var proj)
                         && (proj.Gravity != gravity
                         || (proj.Speed != speedArrow && ammo.Flags.HasFlag(Ammunition.Flag.NonBolt))
                         || (proj.Speed != speedBolt && !ammo.Flags.HasFlag(Ammunition.Flag.NonBolt))))
@@ -135,7 +128,7 @@ namespace AmmoTweaks
 
             if (lootMult != 1)
             {
-                if (state.LinkCache.TryResolve<IGameSettingGetter>(Skyrim.GameSetting.iArrowInventoryChance, out var gmst))
+                if (Skyrim.GameSetting.iArrowInventoryChance.TryResolve(state.LinkCache, out var gmst))
                 {
                     var modifiedGmst = state.PatchMod.GameSettings.GetOrAddAsOverride(gmst);
 
@@ -144,13 +137,13 @@ namespace AmmoTweaks
                     ((GameSettingInt)modifiedGmst).Data = newData < 100 ? newData : 100;
                     Console.WriteLine($"Setting iArrowInventoryChance from {data} to {(newData < 100 ? newData : 100)}");
                 }
-                if (state.LinkCache.TryResolve<IPerkGetter>(Skyrim.Perk.HuntersDiscipline, out var perk))
+                if (Skyrim.Perk.HuntersDiscipline.TryResolve(state.LinkCache, out var perk))
                 {
                     var modifiedPerk = state.PatchMod.Perks.GetOrAddAsOverride(perk);
 
                     foreach (var effect in modifiedPerk.Effects)
                     {
-                        if (!(effect is PerkEntryPointModifyValue modValue)) continue;
+                        if (effect is not PerkEntryPointModifyValue modValue) continue;
                         if (modValue.EntryPoint == APerkEntryPointEffect.EntryType.ModRecoverArrowChance)
                         {
                             var value = modValue.Value;
@@ -173,7 +166,7 @@ namespace AmmoTweaks
 
         private static String RenameAmmo(IAmmunitionGetter ammo)
         {
-            if (!(ammo.Name?.String is string name)) return "";
+            if (ammo.Name?.String is not string name) return "";
             string oldname = name;
             string prefix = "";
             string pattern = "Arrow$|Bolt$";
