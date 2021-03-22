@@ -14,6 +14,7 @@ namespace AmmoTweaks
     public class Program
     {
         private static bool damageRescaling;
+        private static bool tweakNonPlayable;
         private static float damageMult;
         private static float minDamage;
         private static float maxDamage;
