@@ -13,8 +13,8 @@ namespace AmmoTweaks
 {
     public class Program
     {
-        private static bool damageRescaling;
         private static bool tweakNonPlayable;
+        private static bool damageRescaling;
         private static float damageMult;
         private static float minDamage;
         private static float maxDamage;
@@ -64,10 +64,10 @@ namespace AmmoTweaks
             JObject config = JObject.Parse(File.ReadAllText(configFilePath));
 
 
+            if (config.TryGetValue("tweakNonPlayable", out var jNonPlayable))
+                tweakNonPlayable = jNonPlayable.Value<bool?>() ?? false;
             if (config.TryGetValue("damageRescaling", out var jRescale))
                 damageRescaling = jRescale.Value<bool?>() ?? false;
-            if (config.TryGetValue("TweakToNonPlayable", out var jNonPlayable))
-                tweakNonPlayable = jNonPlayable.Value<bool?>() ?? false;
             if (config.TryGetValue("damageMult", out var jDamageMult))
                 damageMult = jDamageMult.Value<float?>() ?? 1;
             if (config.TryGetValue("minDamage", out var jMin))
