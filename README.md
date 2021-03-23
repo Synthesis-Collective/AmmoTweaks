@@ -6,7 +6,6 @@ Can optionally rename ammo for better sorting and adjust recoverable ammo found 
 ## Settings
 Configuration file (Data/config.json)
 - tweakNonPlayable: Apply tweaks to enemy-only (non-playable) ammunation (such as Dwarven Sphere's bolts)
-  - TODO: use instead - list of NonPlayable to tweak damage only
 - damageRescaling:  Enables projectile damage tweaks. Set to false to disable.
 - damageMult: Modifies damage.  Values below 1 will reduce damage while values above 1 will increase it.  
 - minDamage: Allowed minimum damage. Set negative number to disable.
