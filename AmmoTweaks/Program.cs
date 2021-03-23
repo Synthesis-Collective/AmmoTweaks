@@ -114,8 +114,8 @@ namespace AmmoTweaks
                     if (minDamage >= 0  && newDmg < minDamage) 
                     {
                         newDmg = minDamage;    
-                    }
-                    if (ammo.Damage != newDmg) Console.WriteLine($"Changing {ammo.Name} damage from {ammo.Damage} to {newDmg}.");
+                    }                                                               
+                    Console.WriteLine($"Changing {ammo.Name} damage from {ammo.Damage} to {newDmg}.");
                     ammo.Damage =  newDmg;
                 }
 
