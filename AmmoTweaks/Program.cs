@@ -13,10 +13,6 @@ namespace AmmoTweaks
 {
     public class Program
     {
-<<<<<<< HEAD
-        private static bool tweakNonPlayable;
-=======
->>>>>>> parent of bdfb75d (Update Program.cs)
         private static bool damageRescaling;
         private static float damageMult;
         private static float minDamage;
@@ -67,8 +63,6 @@ namespace AmmoTweaks
             JObject config = JObject.Parse(File.ReadAllText(configFilePath));
 
 
-            if (config.TryGetValue("tweakNonPlayable", out var jNonPlayable))
-                tweakNonPlayable = jNonPlayable.Value<bool?>() ?? false;
             if (config.TryGetValue("damageRescaling", out var jRescale))
                 damageRescaling = jRescale.Value<bool?>() ?? false;
             if (config.TryGetValue("damageMult", out var jDamageMult))
@@ -95,7 +89,7 @@ namespace AmmoTweaks
             
             foreach (var ammogetter in state.LoadOrder.PriorityOrder.WinningOverrides<IAmmunitionGetter>())
             {
-                if (tweakNonPlayable or !ammogetter.Flags.HasFlag(Ammunition.Flag.NonPlayable))
+                if (!ammogetter.Flags.HasFlag(Ammunition.Flag.NonPlayable))
                 {
                     patchammo.Add(ammogetter);                   
                 }
