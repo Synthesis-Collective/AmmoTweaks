@@ -1,5 +1,4 @@
 {
-    "tweakNonPlayable": false,
     "damageRescaling" : true,
     "damageMult" : 1,
     "minDamage" : 0,

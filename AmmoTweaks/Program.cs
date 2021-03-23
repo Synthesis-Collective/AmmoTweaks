@@ -92,7 +92,7 @@ namespace AmmoTweaks
             
             foreach (var ammogetter in state.LoadOrder.PriorityOrder.WinningOverrides<IAmmunitionGetter>())
             {
-                if (tweakNonPlayable || !ammogetter.Flags.HasFlag(Ammunition.Flag.NonPlayable))
+                if (tweakNonPlayable or !ammogetter.Flags.HasFlag(Ammunition.Flag.NonPlayable))
                 {
                     patchammo.Add(ammogetter);                   
                 }
