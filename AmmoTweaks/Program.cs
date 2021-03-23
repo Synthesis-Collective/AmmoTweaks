@@ -13,7 +13,10 @@ namespace AmmoTweaks
 {
     public class Program
     {
+<<<<<<< HEAD
         private static bool tweakNonPlayable;
+=======
+>>>>>>> parent of bdfb75d (Update Program.cs)
         private static bool damageRescaling;
         private static float damageMult;
         private static float minDamage;
