@@ -33,7 +33,6 @@ namespace AmmoTweaks
 
         private static List<String> overpowered = new List<String>();
 
-        private static List<IPerkGetter> perks = new List<IPerkGetter>();
         public static Task<int> Main(string[] args)
         {
             return SynthesisPipeline.Instance
