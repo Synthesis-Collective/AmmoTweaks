@@ -55,7 +55,7 @@ namespace AmmoTweaks
             JObject config = JObject.Parse(File.ReadAllText(configFilePath));
 
 
-            if (config.TryGetValue("minDamage", out var jRescale))
+            if (config.TryGetValue("rescaling", out var jRescale))
                 rescaling = jRescale.Value<bool?>() ?? false;
             if (config.TryGetValue("minDamage", out var jMin))
                 minDamage = jMin.Value<float?>() ?? 4;
