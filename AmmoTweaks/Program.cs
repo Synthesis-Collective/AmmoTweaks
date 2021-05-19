@@ -106,7 +106,7 @@ namespace AmmoTweaks
                         if (effect is not PerkEntryPointModifyValue modValue) continue;
                         if (modValue.EntryPoint == APerkEntryPointEffect.EntryType.ModRecoverArrowChance)
                         {
-                            var value = modValue.Value;
+                            var value = modValue.Value ?? 0;
                             var newValue = (float)Math.Round(value * Settings.Loot.Mult);
                             modValue.Value = newValue < 100 ? newValue : 100;
                             Console.WriteLine($"Setting {modifiedPerk.Name} chance from {value} to {(newValue < 100 ? newValue : 100)}");
