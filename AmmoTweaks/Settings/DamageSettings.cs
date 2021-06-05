@@ -1,9 +1,7 @@
 using Mutagen.Bethesda.Synthesis.Settings;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Mutagen.Bethesda;
+using Mutagen.Bethesda.Skyrim;
 
 namespace AmmoTweaks.Settings
 {
@@ -18,5 +16,7 @@ namespace AmmoTweaks.Settings
         [SynthesisOrder]
         public float MaxDamage = 35;
 
+        [SynthesisOrder]
+        public HashSet<IFormLinkGetter<IAmmunitionGetter>> Exclusions = new();
     }
 }

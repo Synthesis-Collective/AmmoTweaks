@@ -6,7 +6,6 @@ using System;
 using System.Text.RegularExpressions;
 using Mutagen.Bethesda.FormKeys.SkyrimSE;
 using System.Threading.Tasks;
-using System.IO;
 using AmmoTweaks.Settings;
 using Noggog;
 
@@ -16,11 +15,6 @@ namespace AmmoTweaks
     {
         static Lazy<AmmoTweaksSettings> _Settings = null!;
         static AmmoTweaksSettings Settings => _Settings.Value;
-
-        private static HashSet<IFormLinkGetter<IProjectileGetter>> blacklist = new(){
-            Dragonborn.Projectile.DLC2ArrowRieklingSpearProjectile,
-            Skyrim.Projectile.MQ101ArrowSteelProjectile
-        };
 
         private static List<IAmmunitionGetter> patchammo = new();
 
@@ -41,15 +35,17 @@ namespace AmmoTweaks
             float vmax = Settings.Damage.MinDamage;
             foreach (var ammogetter in state.LoadOrder.PriorityOrder.Ammunition().WinningOverrides())
             {
-                if (!ammogetter.Flags.HasFlag(Ammunition.Flag.NonPlayable))
-                {
-                    patchammo.Add(ammogetter);
-                    var dmg = ammogetter.Damage;
-                    if (ammogetter.Damage == 0) continue;
-                    if (dmg < vmin) vmin = dmg;
-                    if (dmg > vmax && dmg <= Settings.Damage.MaxDamage) vmax = dmg;
-                    if (dmg > Settings.Damage.MaxDamage && ammogetter.Name?.String is string name) overpowered.Add(name);
-                }
+                if (ammogetter.Flags.HasFlag(Ammunition.Flag.NonPlayable)) continue;
+                if (Settings.GlobalExclusions.Contains(ammogetter)) continue;
+                
+                patchammo.Add(ammogetter);
+
+                if (Settings.Damage.Exclusions.Contains(ammogetter)) continue;
+                var dmg = ammogetter.Damage;
+                if (ammogetter.Damage == 0) continue;
+                if (dmg < vmin) vmin = dmg;
+                if (dmg > vmax && dmg <= Settings.Damage.MaxDamage) vmax = dmg;
+                if (dmg > Settings.Damage.MaxDamage && ammogetter.Name?.String is string name) overpowered.Add(name);
             }
 
             foreach (var ammogetter in patchammo)
@@ -86,7 +82,11 @@ namespace AmmoTweaks
 
                 }
 
-                if (Settings.Renaming.DoRenaming) ammo.Name = RenameAmmo(ammo);
+                if (Settings.Renaming.DoRenaming
+                    && !Settings.Renaming.Exclusions.Contains(ammo))
+                {
+                    ammo.Name = RenameAmmo(ammo);
+                }
             }
 
             if (!Settings.Loot.Mult.EqualsWithin(1))
@@ -100,6 +100,7 @@ namespace AmmoTweaks
                     ((GameSettingInt)modifiedGmst).Data = newData < 100 ? newData : 100;
                     Console.WriteLine($"Setting iArrowInventoryChance from {data} to {(newData < 100 ? newData : 100)}");
                 }
+                
                 if (Skyrim.Perk.HuntersDiscipline.TryResolve(state.LinkCache, out var perk))
                 {
                     var modifiedPerk = state.PatchMod.Perks.GetOrAddAsOverride(perk);
@@ -116,9 +117,8 @@ namespace AmmoTweaks
                         }
                     }
                 }
-
-
             }
+            
             if (overpowered.Count == 0) return;
             Console.WriteLine("Warning: The following ammunitions were above the upper damage limit. They have been reduced to the maximum.");
             foreach (var item in overpowered)
