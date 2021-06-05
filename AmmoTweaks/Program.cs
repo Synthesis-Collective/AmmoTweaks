@@ -8,6 +8,7 @@ using Mutagen.Bethesda.FormKeys.SkyrimSE;
 using System.Threading.Tasks;
 using System.IO;
 using AmmoTweaks.Settings;
+using Noggog;
 
 namespace AmmoTweaks
 {
@@ -21,9 +22,9 @@ namespace AmmoTweaks
             Skyrim.Projectile.MQ101ArrowSteelProjectile
         };
 
-        private static List<IAmmunitionGetter> patchammo = new List<IAmmunitionGetter>();
+        private static List<IAmmunitionGetter> patchammo = new();
 
-        private static List<String> overpowered = new List<String>();
+        private static List<String> overpowered = new();
 
         public static Task<int> Main(string[] args)
         {
@@ -65,9 +66,9 @@ namespace AmmoTweaks
                 }
 
                 if (Settings.Speed.DoSpeedChanges && !blacklist.Contains(ammo.Projectile) && ammo.Projectile.TryResolve(state.LinkCache, out var proj)
-                        && (proj.Gravity != Settings.Speed.Gravity
-                        || (proj.Speed != Settings.Speed.ArrowSpeed && ammo.Flags.HasFlag(Ammunition.Flag.NonBolt))
-                        || (proj.Speed != Settings.Speed.BoltSpeed && !ammo.Flags.HasFlag(Ammunition.Flag.NonBolt))))
+                        && (!proj.Gravity.EqualsWithin(Settings.Speed.Gravity)
+                        || (!proj.Speed.EqualsWithin(Settings.Speed.ArrowSpeed) && ammo.Flags.HasFlag(Ammunition.Flag.NonBolt))
+                        || (!proj.Speed.EqualsWithin(Settings.Speed.BoltSpeed) && !ammo.Flags.HasFlag(Ammunition.Flag.NonBolt))))
                 {
                     var projectile = state.PatchMod.Projectiles.GetOrAddAsOverride(proj);
                     Console.WriteLine($"Adjusting {proj.Name} projectile.");
@@ -86,7 +87,7 @@ namespace AmmoTweaks
                 if (Settings.Renaming.DoRenaming) ammo.Name = RenameAmmo(ammo);
             }
 
-            if (Settings.Loot.Mult != 1)
+            if (!Settings.Loot.Mult.EqualsWithin(1))
             {
                 if (Skyrim.GameSetting.iArrowInventoryChance.TryResolve(state.LinkCache, out var gmst))
                 {
