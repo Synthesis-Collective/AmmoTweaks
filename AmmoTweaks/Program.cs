@@ -53,7 +53,9 @@ namespace AmmoTweaks
                 var ammo = state.PatchMod.Ammunitions.GetOrAddAsOverride(ammogetter);
                 ammo.Weight = 0;
 
-                if (Settings.Damage.DoRescaling && ammo.Damage != 0)
+                if (Settings.Damage.DoRescaling 
+                    && ammo.Damage != 0
+                    && !Settings.Damage.Exclusions.Contains(ammo))
                 {
                     var dmg = ammo.Damage;
                     if (dmg > Settings.Damage.MaxDamage) ammo.Damage = Settings.Damage.MaxDamage;
