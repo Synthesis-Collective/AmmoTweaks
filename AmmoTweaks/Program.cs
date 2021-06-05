@@ -65,8 +65,10 @@ namespace AmmoTweaks
                     Console.WriteLine($"Changing {ammo.Name} damage from {dmg} to {ammo.Damage}.");
                 }
 
-                if (Settings.Speed.DoSpeedChanges && !blacklist.Contains(ammo.Projectile) && ammo.Projectile.TryResolve(state.LinkCache, out var proj)
-                        && (!proj.Gravity.EqualsWithin(Settings.Speed.Gravity)
+                if (Settings.Speed.DoSpeedChanges 
+                    && !Settings.Speed.Exclusions.Contains(ammo.Projectile)
+                    && ammo.Projectile.TryResolve(state.LinkCache, out var proj)
+                    && (!proj.Gravity.EqualsWithin(Settings.Speed.Gravity)
                         || (!proj.Speed.EqualsWithin(Settings.Speed.ArrowSpeed) && ammo.Flags.HasFlag(Ammunition.Flag.NonBolt))
                         || (!proj.Speed.EqualsWithin(Settings.Speed.BoltSpeed) && !ammo.Flags.HasFlag(Ammunition.Flag.NonBolt))))
                 {

@@ -1,9 +1,8 @@
 using Mutagen.Bethesda.Synthesis.Settings;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Mutagen.Bethesda;
+using Mutagen.Bethesda.FormKeys.SkyrimSE;
+using Mutagen.Bethesda.Skyrim;
 
 namespace AmmoTweaks.Settings
 {
@@ -20,5 +19,11 @@ namespace AmmoTweaks.Settings
 
         [SynthesisOrder]
         public float Gravity = 0.2f;
+
+        [SynthesisOrder] public HashSet<IFormLinkGetter<IProjectileGetter>> Exclusions = new()
+        {
+            Dragonborn.Projectile.DLC2ArrowRieklingSpearProjectile,
+            Skyrim.Projectile.MQ101ArrowSteelProjectile
+        };
     }
 }
